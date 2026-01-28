@@ -9,6 +9,9 @@
 !Proxy/**
 !SQL Trace/**
 
+!*.md
+!**/*.md
+
 !.gitignore
 !.gitattributes
 !.github/
