@@ -31,6 +31,10 @@
 !protos
 !protos/*.proto
 
+!third_party/
+!third_party/libpg_query/
+!third_party/libpg_query/**
+
 !.gitignore
 !.gitattributes
 !.github/
