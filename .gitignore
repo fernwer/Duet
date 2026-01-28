@@ -9,6 +9,10 @@
 !Proxy/**
 !SQL Trace/**
 
+!Proxy/third_party/
+!Proxy/third_party/libpg_query/
+!Proxy/third_party/libpg_query/**
+
 !*.md
 !**/*.md
 
