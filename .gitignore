@@ -1,0 +1,24 @@
+# Ignore everything
+*
+
+!Kernel/
+!Proxy/
+!SQL Trace/
+
+!Kernel/**
+!Proxy/**
+!SQL Trace/**
+
+!.gitignore
+!.gitattributes
+!.github/
+!.github/**
+!.pre-commit-config.yaml
+!.clang-format
+!.cz.toml
+!.clang-tidy
+!CPPLINT.cfg
+!.clang-format-ignore
+!.gitmodules
+
+

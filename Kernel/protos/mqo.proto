@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package mqo;
+
+message Value {
+  oneof typed_value {
+    int64  int_val    = 1;
+    double float_val  = 2;
+    string string_val = 3;
+    bool   bool_val   = 4;
+  }
+  bool is_null = 5;
+}
+
+message ParamRow {
+  repeated Value values = 1;
+}
+
+// Payload
+message BatchPayload {
+  string template_sql = 1; // Normalized SQL Template
+  repeated ParamRow rows = 2; // Params Matrix
+
+  repeated string param_types = 3;
+
+  // MQO: Strategy Switch
+  bool use_mqo = 4;
+
+  // MQO: Shared Scan Hint
+  string scan_table = 5;
+  string scan_col = 6;
+
+  // Dry-Run mode
+  // True: Execute Batch then Rollback; False: Normal Commit (Not recommend)
+  bool dry_run = 7;
+}
