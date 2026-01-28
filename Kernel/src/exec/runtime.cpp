@@ -143,7 +143,7 @@ int Runtime::ExecuteSharedScan(const mqo::BatchPayload& payload) {
     }
 
     Relation rel = table_open(table_oid, AccessShareLock);
-    Snapshot snapshot = GetTransactionSnapshot(); // 复用快照
+    Snapshot snapshot = GetTransactionSnapshot(); 
     TableScanDesc scan = table_beginscan(rel, snapshot, 0, NULL);
     TupleTableSlot* slot = table_slot_create(rel, NULL);
 

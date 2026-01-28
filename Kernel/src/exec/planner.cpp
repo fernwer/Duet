@@ -47,7 +47,6 @@ SPIPlanPtr Planner::PrepareMQO(const mqo::BatchPayload& payload) {
     if (plan_cache_.size() >= MAX_PLAN_CACHE_SIZE) {
         elog(DEBUG1, "[Lumos] Plan cache full (%lu), flushing...", plan_cache_.size());
         for (auto& pair : plan_cache_) {
-            // 显式释放 SPI Plan 占用的 CacheMemoryContext 内存
             if (pair.second != NULL) {
                 SPI_freeplan(pair.second);
             }
