@@ -1,0 +1,3 @@
+[submodule "Proxy/third_party/libpg_query"]
+	path = Proxy/third_party/libpg_query
+	url = https://github.com/lfittl/libpg_query.git
