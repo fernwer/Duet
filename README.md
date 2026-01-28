@@ -1,6 +1,6 @@
 ***
 
-# Duet: Bridging the Gap between Multi-Agent Systems and Data Kernels via Tiered Cooperative Multi-Query Optimization DUET: A Proxy-Kernel Collaborative Architecture for Agentic SQL
+# Duet: A Proxy-Kernel Collaborative Architecture for Agentic SQL
 
 **Duet** is a specialized database extension framework designed to bridge the structural mismatch between the cognitive dynamics of AI Agents and traditional database execution models. By elevating the **Reasoning Window** to a first-class execution unit, Duet synthesizes opportunistic windowing, proxy-driven adaptive hints, and snapshot-pinned consistency into a cohesive runtime environment.
 
