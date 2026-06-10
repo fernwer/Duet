@@ -1,46 +1,85 @@
-***
-
 # Duet: A Proxy-Kernel Collaborative Architecture for Agentic SQL
 
-**Duet** is a specialized database extension framework designed to bridge the structural mismatch between the cognitive dynamics of AI Agents and traditional database execution models. By elevating the **Reasoning Window** to a first-class execution unit, Duet synthesizes opportunistic windowing, proxy-driven adaptive hints, and snapshot-pinned consistency into a cohesive runtime environment.
+**Duet** is a proxy-kernel cooperative execution framework for agentic SQL workloads. It addresses the mismatch between intent-level agent reasoning and statement-level database execution by using the **Reasoning Window** as the unit for workload shaping, adaptive multi-query optimization (MQO), and snapshot-aware execution.
 
-This repository contains the source code for the prototype implementation and the dataset artifacts used for evaluation.
+This repository contains the source code for the prototype implementation of Duet.
 
 ## 📂 Repository Structure
 
-The repository is organized into three main components, reflecting the dual-layer architecture and the experimental workloads:
+The repository is organized into two main components, reflecting the proxy-kernel architecture:
 
 ```text
 Duet/
-├── Proxy/          # The Smart Proxy Layer
-├── Kernel/         # The Database Extension
-└── SQL Traces/     # Workload Datasets (Prompts & Generated SQL)
+├── Proxy/          # Proxy-side workload shaping layer
+└── Kernel/         # PostgreSQL kernel extension
 ```
 
 ## 🧩 Component Details
 
-### 1. Proxy/ (The Smart Proxy Layer)
-This directory contains the implementation of the **Duet Proxy**, which acts as the intelligent gateway between AI Agents and the Database Kernel. It is responsible for intercepting, analyzing, and restructuring raw query streams.
+### 1. Proxy/ — Proxy-Side Workload Shaping
 
-*   **Key Features Implemented:**
-    *   **Intent-Aware Batching:** Implements the *Opportunistic Windowing* mechanism to reconstruct logical reasoning steps from bursty traffic.
-    *   **Normalization & Parameterization:** Strips lexical volatility from raw SQL to enable effective caching.
-    *   **Fingerprinting & Hinting:** Generates structural fingerprints (AST hashes) and selectivity signals to guide kernel-side optimization.
-    *   **Consistency Management:** Manages the acquisition and propagation of pinned MVCC snapshots ($T_{window}$).
+This directory contains the implementation of the **Duet Proxy**, which acts as the gateway between agent-generated SQL requests and the database kernel. It performs lightweight pre-execution processing before queries enter the kernel execution path.
 
-### 2. Kernel/ (The Adaptive Database Engine)
-This directory contains the source code for the **Duet Kernel** (based on PostgreSQL). It extends the standard query processing pipeline to support hint-driven execution and inter-query data sharing.
+**Key features:**
 
-*   **Key Features Implemented:**
-    *   **Adaptive Planner:** A modified query optimizer that uses proxy hints to switch between *Parametric Plan Reuse* and *Shared Operator Injection*.
-    *   **Cooperative Execution Runtime:** Implements the *Global Shared Scan* operator and *Cooperative Scan Node* for I/O consolidation.
-    *   **Snapshot Pinning Enforcement:** Modifications to the storage engine to enforce visibility checks based on the propagated $T_{window}$.
-    *   **Sandboxed SubTransactions:** The implementation of the lightweight dry-run mechanism for safe counterfactual reasoning.
+* **Reasoning-window construction:** Groups temporally close and structurally related SQL requests into bounded reasoning windows.
+* **Syntactic validation:** Filters malformed SQL before expensive kernel-side optimization.
+* **Literal normalization:** Replaces literal values with placeholders to expose reusable query templates.
+* **Fingerprinting and hint extraction:** Generates template fingerprints and structural hints, such as referenced relations, predicate columns, and parameter lists.
+* **Window metadata propagation:** Passes normalized templates, parameters, hints, and optional snapshot identifiers to the kernel layer.
 
-### 3. SQL Traces/ (Workload Artifacts)
-This directory archives the datasets and workload traces generated for the characterization and evaluation of Agentic SQL.
+### 2. Kernel/ — PostgreSQL Kernel Extension
 
-*   **Contents:**
-    *   **Prompts:** The specific prompt templates used to drive LLMs (GPT-4, Llama 3, etc.) in our experiments.
-    *   **Generated SQL Logs:** The raw SQL query streams produced by agents executing against the TPC-H benchmarks.
+This directory contains the source code for the **Duet Kernel Extension**, implemented on top of PostgreSQL. It extends the standard query processing pipeline to support hint-guided MQO and snapshot-aware cooperative execution.
 
+**Key features:**
+
+* **Adaptive MQO strategy selection:** Uses proxy-provided hints and optimizer information to choose among parameterized plan reuse, predicate coalescing, shared scans, and independent execution.
+* **Parameterized plan reuse:** Reuses normalized query templates across multiple parameter bindings within a reasoning window.
+* **Predicate coalescing:** Merges compatible predicates, such as structurally similar lookups, into a shared access path when beneficial.
+* **Shared-scan execution:** Reuses scan work across compatible queries in the same reasoning window.
+* **Snapshot pinning:** Enforces same-snapshot visibility for queries jointly consumed within a reasoning window.
+* **Sandboxed execution:** Provides rollback-based isolation for bounded speculative mutations.
+* **Fallback execution:** Reverts to standard PostgreSQL execution when cooperative optimization is not beneficial or cannot be safely applied.
+
+## 🚀 Usage
+
+The prototype is organized as a research artifact. The proxy and kernel extension are developed as separate components and should be built independently.
+
+### Build the Proxy
+
+```bash
+cd Proxy
+mkdir -p build
+cd build
+cmake ..
+make -j
+```
+
+### Build the Kernel Extension
+
+```bash
+cd Kernel
+make
+sudo make install
+```
+
+Then enable the extension inside PostgreSQL:
+
+```sql
+CREATE EXTENSION duet;
+```
+
+> Note: The exact build and deployment steps may depend on the local PostgreSQL installation path and extension configuration.
+
+## 📌 Notes
+
+* Duet does not require changes to the agent-side SQL interface.
+* Agents continue to issue ordinary SQL requests.
+* Reasoning windows are reconstructed below the client interface by the proxy.
+* Kernel-side cooperative execution is applied only when runtime checks and optimizer estimates indicate benefit.
+* If cooperative optimization is not applicable, Duet falls back to standard PostgreSQL execution.
+
+## 📄 License
+
+This repository is released for research and evaluation purposes.
